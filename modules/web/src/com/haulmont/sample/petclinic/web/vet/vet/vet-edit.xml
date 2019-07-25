@@ -8,23 +8,19 @@
                   class="com.haulmont.sample.petclinic.entity.vet.Vet"
                   view="vet-with-specialties">
             <loader/>
-
             <collection id="specialtiesDc" property="specialties"/>
         </instance>
-
     </data>
-
     <dialogMode height="600"
                 width="800"/>
-
     <layout expand="editActions" spacing="true">
         <form id="fieldGroup" dataContainer="vetDc">
             <column width="250px">
                 <textField property="firstName"/>
                 <textField property="lastName"/>
+                <upload fileStoragePutMode="IMMEDIATE" showFileName="true" id="imageField" property="image"/>
             </column>
         </form>
-
         <groupBox id="specialtiesBox" caption="msg://specialties" stylename="light">
             <table id="specialtiesTable" dataContainer="specialtiesDc" height="100%" width="100%">
                 <buttonsPanel>
@@ -42,7 +38,6 @@
                 </columns>
             </table>
         </groupBox>
-
         <hbox id="editActions" spacing="true">
             <button action="windowCommitAndClose"/>
             <button action="windowClose"/>

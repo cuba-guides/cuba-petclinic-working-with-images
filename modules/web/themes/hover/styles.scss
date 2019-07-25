@@ -9,6 +9,21 @@
   
   @include com_haulmont_sample_petclinic-hover-ext;
 
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+  // Custom styles
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  .c-image-avatar-icon-small {
+    border: 3px solid $petclinic-light-color;
+    border-radius: 30px;
+    background: white;
+  }
+
+  .c-image-avatar-icon-large {
+    border: 6px solid $petclinic-light-color;
+    border-radius: 60px;
+    background: white;
+  }
 
   .c-groupbox-caption {
     color: $petclinic-main-color;
@@ -86,4 +101,7 @@
     }
 
   }
+
 }
+
+

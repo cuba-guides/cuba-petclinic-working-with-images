@@ -9,7 +9,6 @@
                   view="visit-with-pet">
             <loader/>
         </instance>
-
         <collection id="petsDc" class="com.haulmont.sample.petclinic.entity.pet.Pet" view="_base">
             <loader>
                 <query>
@@ -18,19 +17,37 @@
             </loader>
         </collection>
     </data>
-
     <dialogMode height="600"
                 width="800"/>
+    <layout expand="descriptionField" spacing="true">
+        <hbox
+            spacing="true"
+            width="100%"
+            expand="form"
+        >
+            <form id="form"
+                  height="100%"
+                  dataContainer="visitDc"
+                  captionPosition="TOP">
+                <column id="contentColumn" width="250px">
+                    <lookupPickerField property="pet" optionsContainer="petsDc"/>
+                    <dateField property="visitDate"/>
+                </column>
+            </form>
+            <form
+                    id="treatingVetForm"
+                    align="BOTTOM_RIGHT"
+                    dataContainer="visitDc"
+                    captionPosition="TOP">
+                <column id="contentColumn" width="250px">
+                </column>
+            </form>
+        </hbox>
 
-    <layout expand="editActions" spacing="true">
-        <form id="fieldGroup" dataContainer="visitDc">
-            <column width="250px">
-                <dateField property="visitDate"/>
-                <textField colspan="5" property="description"/>
-                <lookupPickerField property="pet" optionsContainer="petsDc"/>
-            </column>
-        </form>
-
+        <textArea
+                id="descriptionField"
+                caption="msg://com.haulmont.sample.petclinic.entity.visit.Visit/Visit.description"
+                property="description" dataContainer="visitDc" width="100%" />
 
         <hbox id="editActions" spacing="true">
             <button action="windowCommitAndClose"/>
