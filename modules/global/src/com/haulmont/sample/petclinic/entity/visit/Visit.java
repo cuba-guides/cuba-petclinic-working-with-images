@@ -1,6 +1,7 @@
 package com.haulmont.sample.petclinic.entity.visit;
 
 import com.haulmont.chile.core.annotations.NamePattern;
+import com.haulmont.cuba.core.entity.FileDescriptor;
 import com.haulmont.cuba.core.entity.StandardEntity;
 import com.haulmont.cuba.core.entity.annotation.Lookup;
 import com.haulmont.cuba.core.entity.annotation.LookupType;
@@ -10,6 +11,7 @@ import com.haulmont.sample.petclinic.entity.vet.Vet;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.List;
 
 @NamePattern("%s (%s)|pet,visitDate")
 @Table(name = "PETCLINIC_VISIT")
@@ -34,6 +36,20 @@ public class Visit extends StandardEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "PET_ID")
     protected Pet pet;
+
+    @JoinTable(name = "PETCLINIC_VISIT_X_RAY_IMAGES_FILE_DESCRIPTOR_LINK",
+            joinColumns = @JoinColumn(name = "VISIT_ID"),
+            inverseJoinColumns = @JoinColumn(name = "FILE_DESCRIPTOR_ID"))
+    @ManyToMany
+    protected List<FileDescriptor> xrayImages;
+
+    public List<FileDescriptor> getXrayImages() {
+        return xrayImages;
+    }
+
+    public void setXrayImages(List<FileDescriptor> xrayImages) {
+        this.xrayImages = xrayImages;
+    }
 
     public Vet getTreatingVet() {
         return treatingVet;

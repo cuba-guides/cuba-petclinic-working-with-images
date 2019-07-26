@@ -1,17 +1,25 @@
 package com.haulmont.sample.petclinic.web.visit.visit;
 
+import com.haulmont.cuba.core.entity.FileDescriptor;
+import com.haulmont.cuba.core.global.FileStorageException;
+import com.haulmont.cuba.gui.Notifications;
 import com.haulmont.cuba.gui.ScreenBuilders;
 import com.haulmont.cuba.gui.UiComponents;
 import com.haulmont.cuba.gui.components.*;
-import com.haulmont.cuba.gui.components.actions.BaseAction;
-import com.haulmont.cuba.gui.components.data.value.ContainerValueSource;
-import com.haulmont.cuba.gui.icons.CubaIcon;
+import com.haulmont.cuba.gui.export.ExportDisplay;
+import com.haulmont.cuba.gui.export.ExportFormat;
+import com.haulmont.cuba.gui.model.CollectionPropertyContainer;
+import com.haulmont.cuba.gui.model.DataContext;
 import com.haulmont.cuba.gui.model.InstanceContainer;
 import com.haulmont.cuba.gui.screen.*;
-import com.haulmont.sample.petclinic.entity.vet.Vet;
+import com.haulmont.cuba.gui.upload.FileUploadingAPI;
 import com.haulmont.sample.petclinic.entity.visit.Visit;
+import com.haulmont.sample.petclinic.web.visit.visit.xray_image_preview.XrayImagePreview;
+import com.haulmont.sample.petclinic.web.visit.visit.xray_image_preview.XrayPreviewComponentFactory;
+import org.slf4j.Logger;
 
 import javax.inject.Inject;
+import java.util.Set;
 
 
 @UiController("petclinic_Visit.edit")
@@ -32,76 +40,115 @@ public class VisitEdit extends StandardEditor<Visit> {
     @Inject
     protected ScreenBuilders screenBuilders;
 
-    @Subscribe
-    protected void renderTreatingVetLayout(AfterShowEvent event) {
+    @Inject
+    protected CollectionPropertyContainer<FileDescriptor> xRayImagesDc;
 
-        treatingVetForm.add(
-                verticalLayout(
-                                vetImage(),
-                        horizontalLayout(
-                                treatingVetName(),
-                                editVetButton()
-                        )
-                )
-        );
+    @Inject
+    protected Logger logger;
+
+    @Inject
+    protected HBoxLayout xrayImageWrapperLayout;
+
+    @Inject
+    protected FileUploadField upload;
+
+    @Inject
+    protected DataContext dataContext;
+
+    @Inject
+    protected FileUploadingAPI fileUploadingAPI;
+
+    @Inject
+    protected Notifications notifications;
+
+    @Inject
+    protected MessageBundle messageBundle;
+
+    @Inject
+    protected Table<FileDescriptor> xRayImagesTable;
+
+    @Inject
+    protected ExportDisplay exportDisplay;
+
+    @Subscribe("xRayImagesTable")
+    protected void onXRayImagesTableSelection(Table.SelectionEvent<FileDescriptor> event) {
+        xrayImageWrapperLayout.removeAll();
+        Set<FileDescriptor> selectedXrayImages = event.getSelected();
+
+        if (!selectedXrayImages.isEmpty()) {
+            xrayImageWrapperLayout.add(xrayImage(selectedXrayImages.iterator().next()));
+        }
     }
 
-    private HBoxLayout horizontalLayout(Component... childComponents) {
-        HBoxLayout layout = uiComponents.create(HBoxLayout.class);
-        layout.setAlignment(Component.Alignment.MIDDLE_CENTER);
-        layout.setWidthFull();
-        layout.setSpacing(true);
-        layout.add(childComponents);
-        return layout;
-    }
-
-    private VBoxLayout verticalLayout(Component... childComponents) {
-        VBoxLayout layout = uiComponents.create(VBoxLayout.class);
-        layout.setAlignment(Component.Alignment.BOTTOM_CENTER);
-        layout.add(childComponents);
-        layout.setWidthFull();
-        return layout;
-    }
-
-    private Label treatingVetName() {
-        Label treatingVetlabel = uiComponents.create(Label.class);
-        treatingVetlabel.setValueSource(new ContainerValueSource<Visit, Vet>(visitDc, "treatingVet"));
-        treatingVetlabel.setAlignment(Component.Alignment.MIDDLE_CENTER);
-        treatingVetlabel.setWidthFull();
-        treatingVetlabel.setStyleName("h1");
-        return treatingVetlabel;
-    }
-
-    private Button editVetButton() {
-
-        LinkButton button = uiComponents.create(LinkButton.class);
-        button.setAlignment(Component.Alignment.MIDDLE_RIGHT);
-        button.setIconFromSet(CubaIcon.EDIT_ACTION);
-        button.setStyleName("borderless huge");
-        button.setAction(new BaseAction("changeVet").withHandler(this::openVetLookup));
-
-        return button;
-    }
-
-    private void openVetLookup(Action.ActionPerformedEvent event) {
-        screenBuilders.lookup(Vet.class, this)
+    @Subscribe("xRayImagesTable.edit")
+    protected void onXRayImagesTableEdit(Action.ActionPerformedEvent event) {
+        screenBuilders.editor(FileDescriptor.class, this)
+                .editEntity(xRayImagesTable.getSingleSelected())
+                .withScreenClass(XrayImagePreview.class)
                 .withOpenMode(OpenMode.DIALOG)
-                .withSelectHandler(vets -> getEditedEntity().setTreatingVet(vets.iterator().next()))
                 .show();
     }
 
-    private Image vetImage() {
+    @Subscribe("xRayImagesTable.download")
+    protected void onXRayImagesTableDownload(Action.ActionPerformedEvent event) {
+        downloadFile(xRayImagesTable.getSingleSelected());
+    }
 
-        Image image = uiComponents.create(Image.class);
-        image.setScaleMode(Image.ScaleMode.CONTAIN);
-        image.setHeight("80");
-        image.setWidth("80");
-        image.setStyleName("avatar-icon-large");
-        image.setAlignment(Component.Alignment.MIDDLE_CENTER);
-        image.setValueSource(new ContainerValueSource<>(visitDc, "treatingVet.image"));
-
-        return image;
+    private void downloadFile(FileDescriptor file) {
+        exportDisplay.show(file, ExportFormat.OCTET_STREAM);
     }
 
 
+    @Subscribe("upload")
+    protected void onUploadFileUploadSucceed(FileUploadField.FileUploadSucceedEvent event) {
+        FileDescriptor imageFile = upload.getFileDescriptor();
+        logger.error("" + imageFile);
+
+
+        try {
+            fileUploadingAPI.putFileIntoStorage(upload.getFileId(), imageFile);
+            dataContext.merge(imageFile);
+            xRayImagesDc.getMutableItems().add(imageFile);
+            dataContext.commit();
+
+            notifications.create(Notifications.NotificationType.TRAY)
+                    .withCaption(messageBundle.getMessage("xrayImageStoredSuccessfully"))
+                    .show();
+        } catch (FileStorageException e) {
+            String failedMessage = messageBundle.getMessage("xrayImageStorageFailed");
+            notifications.create(Notifications.NotificationType.ERROR)
+                    .withCaption(failedMessage)
+                    .show();
+
+            logger.error(failedMessage, e);
+        }
+    }
+
+
+    @Subscribe
+    protected void renderTreatingVetLayout(AfterShowEvent event) {
+
+        VetPreviewComponentFactory vetPreviewComponentFactory = new VetPreviewComponentFactory(
+                uiComponents,
+                screenBuilders,
+                messageBundle,
+                this
+        );
+
+        Component vetPreview = vetPreviewComponentFactory.create(
+                visitDc,
+                vet -> getEditedEntity().setTreatingVet(vet)
+        );
+
+        treatingVetForm.add(vetPreview);
+    }
+
+    private Component xrayImage(FileDescriptor file) {
+        XrayPreviewComponentFactory xrayPreviewComponentFactory = new XrayPreviewComponentFactory(
+                uiComponents,
+                messageBundle
+        );
+
+        return xrayPreviewComponentFactory.create(file);
+    }
 }

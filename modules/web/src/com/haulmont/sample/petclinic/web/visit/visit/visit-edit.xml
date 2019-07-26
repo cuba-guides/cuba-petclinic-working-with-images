@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
         caption="msg://editorCaption"
-        focusComponent="fieldGroup"
+        focusComponent="form"
         messagesPack="com.haulmont.sample.petclinic.web.visit.visit">
     <data>
         <instance id="visitDc"
                   class="com.haulmont.sample.petclinic.entity.visit.Visit"
                   view="visit-with-pet">
             <loader/>
+            <collection id="xRayImagesDc" property="xrayImages"/>
         </instance>
         <collection id="petsDc" class="com.haulmont.sample.petclinic.entity.pet.Pet" view="_base">
             <loader>
@@ -19,11 +20,11 @@
     </data>
     <dialogMode height="600"
                 width="800"/>
-    <layout expand="descriptionField" spacing="true">
+    <layout expand="extendedInformationTabSheet" spacing="true">
         <hbox
-            spacing="true"
-            width="100%"
-            expand="form"
+                spacing="true"
+                width="100%"
+                expand="form"
         >
             <form id="form"
                   height="100%"
@@ -43,12 +44,63 @@
                 </column>
             </form>
         </hbox>
+        <tabSheet id="extendedInformationTabSheet">
+            <tab id="descriptionTab"
+                 spacing="true"
+                 margin="true,false,false,false"
+                 caption="msg://com.haulmont.sample.petclinic.entity.visit.Visit/Visit.description"
+            >
 
-        <textArea
-                id="descriptionField"
-                caption="msg://com.haulmont.sample.petclinic.entity.visit.Visit/Visit.description"
-                property="description" dataContainer="visitDc" width="100%" />
+                <textArea
+                        id="descriptionField"
 
+                        property="description" dataContainer="visitDc" width="100%"/>
+            </tab>
+            <tab id="xRayImagesTab"
+                 spacing="true"
+                 expand="contentHBox"
+                 margin="true,false,false,false"
+                 caption="msg://com.haulmont.sample.petclinic.entity.visit/Visit.xrayImages">
+
+                <buttonsPanel>
+                    <upload id="upload"
+                            dropZone="contentHBox"
+                            showClearButton="false"
+                            uploadButtonIcon="UPLOAD"
+                            uploadButtonCaption=""
+                            fileStoragePutMode="MANUAL"
+                            permittedExtensions=".png,.jpg,.pdf"
+                            showFileName="false"/>
+                    <button action="xRayImagesTable.download"/>
+                    <button action="xRayImagesTable.remove"/>
+                </buttonsPanel>
+                <hbox id="contentHBox" spacing="true" width="100%">
+                    <table id="xRayImagesTable"
+                           dataContainer="xRayImagesDc"
+                           width="100%"
+                           height="100%"
+                           columnControlVisible="false"
+
+                    >
+                        <actions>
+                            <action id="download" trackSelection="true" icon="DOWNLOAD"/>
+                            <action id="edit" type="edit"/>
+                            <action id="remove" type="remove"/>
+                        </actions>
+                        <columns>
+                            <column id="name"/>
+                        </columns>
+                    </table>
+                        <hbox
+                                id="xrayImageWrapperLayout"
+                                height="100%"
+                                width="100%"
+                                spacing="true"></hbox>
+
+                </hbox>
+
+            </tab>
+        </tabSheet>
         <hbox id="editActions" spacing="true">
             <button action="windowCommitAndClose"/>
             <button action="windowClose"/>

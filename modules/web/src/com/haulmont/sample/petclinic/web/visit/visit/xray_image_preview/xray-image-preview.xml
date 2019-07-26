@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
+        caption="msg://caption"
+        messagesPack="com.haulmont.sample.petclinic.web.visit.visit.xray_image_preview">
+    <data>
+
+        <instance id="imageDc"
+                  class="com.haulmont.cuba.core.entity.FileDescriptor"
+                  view="_base">
+            <loader/>
+        </instance>
+    </data>
+    <dialogMode width="90%" height="90%" forceDialog="true" resizable="true" />
+    <layout expand="content">
+        <scrollBox id="content">
+        <image
+                id="image"
+                width="100%"
+                height="100%"
+                scaleMode="CONTAIN"
+        />
+        </scrollBox>
+    </layout>
+</window>
