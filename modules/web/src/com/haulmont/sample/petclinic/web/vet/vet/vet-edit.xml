@@ -6,7 +6,7 @@
     <data>
         <instance id="vetDc"
                   class="com.haulmont.sample.petclinic.entity.vet.Vet"
-                  view="vet-with-specialties">
+                  view="vet-with-specialties-and-image">
             <loader/>
             <collection id="specialtiesDc" property="specialties"/>
         </instance>
@@ -15,10 +15,14 @@
                 width="800"/>
     <layout expand="editActions" spacing="true">
         <form id="fieldGroup" dataContainer="vetDc">
-            <column width="250px">
+            <column width="350px">
                 <textField property="firstName"/>
                 <textField property="lastName"/>
-                <upload fileStoragePutMode="IMMEDIATE" showFileName="true" id="imageField" property="image"/>
+                <upload id="imageField"
+                        property="image"
+                        fileStoragePutMode="IMMEDIATE"
+                        showFileName="true"
+                />
             </column>
         </form>
         <groupBox id="specialtiesBox" caption="msg://specialties" stylename="light">
@@ -29,8 +33,8 @@
                     <button action="specialtiesTable.remove"/>
                 </buttonsPanel>
                 <actions>
-                    <action id="create" type="create" openType="DIALOG"/>
-                    <action id="edit" type="edit" openType="DIALOG"/>
+                    <action id="create" type="create"/>
+                    <action id="edit" type="edit"/>
                     <action id="remove" type="remove"/>
                 </actions>
                 <columns>

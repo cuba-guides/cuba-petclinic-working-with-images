@@ -23,22 +23,21 @@ public class VetBrowse extends StandardLookup<Vet> {
 
     @Subscribe
     protected void onInit(InitEvent event) {
+        vetsTable.addGeneratedColumn("image", this::renderAvatarImageComponent);
+    }
 
+    private Component renderAvatarImageComponent(Vet vet) {
+        FileDescriptor imageFile = vet.getImage();
 
-        vetsTable.addGeneratedColumn("image", vet -> {
-            FileDescriptor imageFile = vet.getImage();
+        if (imageFile == null) {
+            return null;
+        }
 
-            if (imageFile == null) {
-                return null;
-            }
+        Image image = smallAvatarImage();
+        image.setSource(FileDescriptorResource.class)
+                .setFileDescriptor(imageFile);
 
-            Image image = smallAvatarImage();
-            image.setSource(FileDescriptorResource.class)
-                    .setFileDescriptor(imageFile);
-
-            return image;
-
-        });
+        return image;
     }
 
     private Image smallAvatarImage() {
@@ -49,4 +48,5 @@ public class VetBrowse extends StandardLookup<Vet> {
         image.setStyleName("avatar-icon-small");
         return image;
     }
+
 }

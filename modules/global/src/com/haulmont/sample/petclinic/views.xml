@@ -2,7 +2,7 @@
 <views xmlns="http://schemas.haulmont.com/cuba/view.xsd">
     <view class="com.haulmont.sample.petclinic.entity.vet.Vet"
           extends="_local"
-          name="vet-with-specialties">
+          name="vet-with-specialties-and-image">
         <property name="specialties"
                   view="_minimal"/>
         <property name="image" view="_base" />
@@ -10,7 +10,7 @@
     <view class="com.haulmont.sample.petclinic.entity.visit.Visit"
           extends="_local"
           name="visit-with-pet">
-        <property name="treatingVet" view="vet-with-specialties"/>
+        <property name="treatingVet" view="vet-with-specialties-and-image"/>
         <property name="pet" view="_minimal"/>
         <property name="xrayImages" view="_base"/>
     </view>
