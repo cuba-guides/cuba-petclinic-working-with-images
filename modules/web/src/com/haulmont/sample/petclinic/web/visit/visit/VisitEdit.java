@@ -70,13 +70,36 @@ public class VisitEdit extends StandardEditor<Visit> {
     @Inject
     protected ExportDisplay exportDisplay;
 
+
+    @Subscribe
+    protected void renderTreatingVetLayout(AfterShowEvent event) {
+
+        VetPreviewComponentFactory vetPreviewComponentFactory = new VetPreviewComponentFactory(
+                uiComponents,
+                screenBuilders,
+                messageBundle,
+                this
+        );
+
+        Component vetPreview = vetPreviewComponentFactory.create(
+                visitDc,
+                vet -> getEditedEntity().setTreatingVet(vet)
+        );
+
+        treatingVetForm.add(vetPreview);
+    }
+
     @Subscribe("xRayImagesTable")
     protected void onXRayImagesTableSelection(Table.SelectionEvent<FileDescriptor> event) {
         xrayImageWrapperLayout.removeAll();
         Set<FileDescriptor> selectedXrayImages = event.getSelected();
 
         if (!selectedXrayImages.isEmpty()) {
-            xrayImageWrapperLayout.add(xrayImage(selectedXrayImages.iterator().next()));
+            xrayImageWrapperLayout.add(
+                    xrayImage(
+                            selectedXrayImages.iterator().next()
+                    )
+            );
         }
     }
 
@@ -122,25 +145,6 @@ public class VisitEdit extends StandardEditor<Visit> {
 
             logger.error(failedMessage, e);
         }
-    }
-
-
-    @Subscribe
-    protected void renderTreatingVetLayout(AfterShowEvent event) {
-
-        VetPreviewComponentFactory vetPreviewComponentFactory = new VetPreviewComponentFactory(
-                uiComponents,
-                screenBuilders,
-                messageBundle,
-                this
-        );
-
-        Component vetPreview = vetPreviewComponentFactory.create(
-                visitDc,
-                vet -> getEditedEntity().setTreatingVet(vet)
-        );
-
-        treatingVetForm.add(vetPreview);
     }
 
     private Component xrayImage(FileDescriptor file) {

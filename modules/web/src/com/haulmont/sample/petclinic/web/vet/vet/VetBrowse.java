@@ -23,7 +23,10 @@ public class VetBrowse extends StandardLookup<Vet> {
 
     @Subscribe
     protected void onInit(InitEvent event) {
-        vetsTable.addGeneratedColumn("image", this::renderAvatarImageComponent);
+        vetsTable.addGeneratedColumn(
+                "image",
+                this::renderAvatarImageComponent
+        );
     }
 
     private Component renderAvatarImageComponent(Vet vet) {
