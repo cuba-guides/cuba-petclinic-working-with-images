@@ -20,13 +20,20 @@ public class VetPreviewComponentFactory {
     private final ScreenBuilders screenBuilders;
     private final FrameOwner frameOwner;
 
-    public VetPreviewComponentFactory(UiComponents uiComponents, ScreenBuilders screenBuilders, FrameOwner frameOwner) {
+    public VetPreviewComponentFactory(
+            UiComponents uiComponents,
+            ScreenBuilders screenBuilders,
+            FrameOwner frameOwner
+    ) {
         this.uiComponents = uiComponents;
         this.screenBuilders = screenBuilders;
         this.frameOwner = frameOwner;
     }
 
-    public Component create(InstanceContainer<Visit> visitDc, Consumer<Vet> vetSelectionHandler){
+    public Component create(
+            InstanceContainer<Visit> visitDc,
+            Consumer<Vet> vetSelectionHandler
+    ){
         return verticalLayout(
                 vetImage(visitDc),
                 horizontalLayout(
