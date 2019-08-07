@@ -1,6 +1,5 @@
 package com.haulmont.sample.petclinic.web.visit.visit;
 
-import com.haulmont.cuba.core.entity.FileDescriptor;
 import com.haulmont.cuba.gui.ScreenBuilders;
 import com.haulmont.cuba.gui.UiComponents;
 import com.haulmont.cuba.gui.components.*;
@@ -9,7 +8,6 @@ import com.haulmont.cuba.gui.components.data.value.ContainerValueSource;
 import com.haulmont.cuba.gui.icons.CubaIcon;
 import com.haulmont.cuba.gui.model.InstanceContainer;
 import com.haulmont.cuba.gui.screen.FrameOwner;
-import com.haulmont.cuba.gui.screen.MessageBundle;
 import com.haulmont.cuba.gui.screen.OpenMode;
 import com.haulmont.sample.petclinic.entity.vet.Vet;
 import com.haulmont.sample.petclinic.entity.visit.Visit;
