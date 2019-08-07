@@ -19,7 +19,6 @@ public class VetPreviewComponentFactory {
     private final UiComponents uiComponents;
     private final ScreenBuilders screenBuilders;
     private final FrameOwner frameOwner;
-    private InstanceContainer<Visit> visitDc;
 
     public VetPreviewComponentFactory(UiComponents uiComponents, ScreenBuilders screenBuilders, FrameOwner frameOwner) {
         this.uiComponents = uiComponents;
@@ -28,47 +27,54 @@ public class VetPreviewComponentFactory {
     }
 
     public Component create(InstanceContainer<Visit> visitDc, Consumer<Vet> vetSelectionHandler){
-        this.visitDc = visitDc;
-
         return verticalLayout(
-                vetImage(),
+                vetImage(visitDc),
                 horizontalLayout(
-                        treatingVetName(),
+                        treatingVetName(visitDc),
                         editVetButton(vetSelectionHandler)
                 )
         );
     }
 
-
     private HBoxLayout horizontalLayout(Component... childComponents) {
+
         HBoxLayout layout = uiComponents.create(HBoxLayout.class);
+
         layout.setAlignment(Component.Alignment.MIDDLE_CENTER);
         layout.setWidthFull();
         layout.setSpacing(true);
         layout.add(childComponents);
+
         return layout;
     }
 
     private VBoxLayout verticalLayout(Component... childComponents) {
+
         VBoxLayout layout = uiComponents.create(VBoxLayout.class);
+
         layout.setAlignment(Component.Alignment.BOTTOM_CENTER);
         layout.add(childComponents);
         layout.setWidthFull();
+
         return layout;
     }
 
-    private Label treatingVetName() {
+    private Label treatingVetName(InstanceContainer<Visit> visitDc) {
+
         Label treatingVetlabel = uiComponents.create(Label.class);
+
         treatingVetlabel.setValueSource(new ContainerValueSource<Visit, Vet>(visitDc, "treatingVet"));
         treatingVetlabel.setAlignment(Component.Alignment.MIDDLE_CENTER);
         treatingVetlabel.setWidthFull();
         treatingVetlabel.setStyleName("h1");
+
         return treatingVetlabel;
     }
 
     private Button editVetButton(Consumer<Vet> vetSelectionHandler) {
 
         LinkButton button = uiComponents.create(LinkButton.class);
+
         button.setAlignment(Component.Alignment.MIDDLE_RIGHT);
         button.setIconFromSet(CubaIcon.EDIT_ACTION);
         button.setStyleName("borderless huge");
@@ -84,9 +90,10 @@ public class VetPreviewComponentFactory {
                 .show();
     }
 
-    private Image vetImage() {
+    private Image vetImage(InstanceContainer<Visit> visitDc) {
 
         Image image = uiComponents.create(Image.class);
+
         image.setScaleMode(Image.ScaleMode.CONTAIN);
         image.setHeight("80");
         image.setWidth("80");
