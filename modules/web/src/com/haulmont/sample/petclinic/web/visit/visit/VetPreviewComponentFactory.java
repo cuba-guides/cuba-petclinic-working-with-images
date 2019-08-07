@@ -20,17 +20,14 @@ public class VetPreviewComponentFactory {
 
     private final UiComponents uiComponents;
     private final ScreenBuilders screenBuilders;
-    private final MessageBundle messageBundle;
     private final FrameOwner frameOwner;
     private InstanceContainer<Visit> visitDc;
 
-    public VetPreviewComponentFactory(UiComponents uiComponents, ScreenBuilders screenBuilders, MessageBundle messageBundle, FrameOwner frameOwner) {
+    public VetPreviewComponentFactory(UiComponents uiComponents, ScreenBuilders screenBuilders, FrameOwner frameOwner) {
         this.uiComponents = uiComponents;
         this.screenBuilders = screenBuilders;
-        this.messageBundle = messageBundle;
         this.frameOwner = frameOwner;
     }
-
 
     public Component create(InstanceContainer<Visit> visitDc, Consumer<Vet> vetSelectionHandler){
         this.visitDc = visitDc;
@@ -101,61 +98,4 @@ public class VetPreviewComponentFactory {
 
         return image;
     }
-
-    private Component xrayImage(FileDescriptor file) {
-        GroupBoxLayout groupBoxLayout = uiComponents.create(GroupBoxLayout.class);
-
-        groupBoxLayout.setShowAsPanel(true);
-        groupBoxLayout.setWidthFull();
-        groupBoxLayout.setHeightFull();
-        groupBoxLayout.setStyleName("well");
-        groupBoxLayout.setCaption(messageBundle.formatMessage("previewFile", file.getName()));
-
-        if (isPdf(file)) {
-            Component xrayImageComponent = xrayPdfComponent(file);
-            groupBoxLayout.add(xrayImageComponent);
-
-        }
-        else if (isImage(file)){
-            Component xrayImageComponent = xrayImageComponent(file);
-            groupBoxLayout.add(xrayImageComponent);
-        }
-
-        return groupBoxLayout;
-    }
-
-    private boolean isPdf(FileDescriptor file) {
-        return file.getExtension().contains("pdf");
-    }
-
-    private boolean isImage(FileDescriptor imageFile) {
-        return imageFile.getExtension().contains("png")
-                || imageFile.getExtension().contains("jpg")
-                || imageFile.getExtension().contains("jpeg");
-    }
-
-    private Component xrayPdfComponent(FileDescriptor imageFile) {
-        BrowserFrame browserFrame = uiComponents.create(BrowserFrame.class);
-        browserFrame.setAlignment(Component.Alignment.MIDDLE_CENTER);
-        browserFrame.setWidthFull();
-        browserFrame.setHeightFull();
-        browserFrame.setSource(FileDescriptorResource.class)
-                .setFileDescriptor(imageFile)
-                .setMimeType("application/pdf");
-        return browserFrame;
-    }
-
-    private Component xrayImageComponent(FileDescriptor imageFile) {
-        Image image = uiComponents.create(Image.class);
-        image.setScaleMode(Image.ScaleMode.SCALE_DOWN);
-        image.setAlignment(Component.Alignment.MIDDLE_CENTER);
-        image.setWidthFull();
-        image.setHeightFull();
-
-        image.setSource(FileDescriptorResource.class)
-                .setFileDescriptor(imageFile);
-
-        return image;
-    }
-
 }

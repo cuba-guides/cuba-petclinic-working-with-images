@@ -77,7 +77,6 @@ public class VisitEdit extends StandardEditor<Visit> {
         VetPreviewComponentFactory vetPreviewComponentFactory = new VetPreviewComponentFactory(
                 uiComponents,
                 screenBuilders,
-                messageBundle,
                 this
         );
 
