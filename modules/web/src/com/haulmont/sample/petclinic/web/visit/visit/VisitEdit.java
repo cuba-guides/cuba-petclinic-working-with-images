@@ -89,7 +89,9 @@ public class VisitEdit extends StandardEditor<Visit> {
     }
 
     @Subscribe("xRayImagesTable")
-    protected void onXRayImagesTableSelection(Table.SelectionEvent<FileDescriptor> event) {
+    protected void onXRayImagesTableSelection(
+            Table.SelectionEvent<FileDescriptor> event
+    ) {
         xrayImageWrapperLayout.removeAll();
         Set<FileDescriptor> selectedXrayImages = event.getSelected();
 
@@ -100,6 +102,15 @@ public class VisitEdit extends StandardEditor<Visit> {
                     )
             );
         }
+    }
+
+    private Component xrayImage(FileDescriptor file) {
+        XrayPreviewComponentFactory factory = new XrayPreviewComponentFactory(
+                uiComponents,
+                messageBundle
+        );
+
+        return factory.create(file);
     }
 
     @Subscribe("xRayImagesTable.edit")
@@ -124,8 +135,6 @@ public class VisitEdit extends StandardEditor<Visit> {
     @Subscribe("upload")
     protected void onUploadFileUploadSucceed(FileUploadField.FileUploadSucceedEvent event) {
         FileDescriptor imageFile = upload.getFileDescriptor();
-        logger.error("" + imageFile);
-
 
         try {
             fileUploadingAPI.putFileIntoStorage(upload.getFileId(), imageFile);
@@ -144,14 +153,5 @@ public class VisitEdit extends StandardEditor<Visit> {
 
             logger.error(failedMessage, e);
         }
-    }
-
-    private Component xrayImage(FileDescriptor file) {
-        XrayPreviewComponentFactory xrayPreviewComponentFactory = new XrayPreviewComponentFactory(
-                uiComponents,
-                messageBundle
-        );
-
-        return xrayPreviewComponentFactory.create(file);
     }
 }

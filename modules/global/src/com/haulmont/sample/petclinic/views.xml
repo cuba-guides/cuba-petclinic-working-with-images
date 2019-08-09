@@ -9,7 +9,7 @@
     </view>
     <view class="com.haulmont.sample.petclinic.entity.visit.Visit"
           extends="_local"
-          name="visit-with-pet">
+          name="visit-with-pet-and-vet-and-xray-images">
         <property name="treatingVet" view="vet-with-specialties-and-image"/>
         <property name="pet" view="_minimal"/>
         <property name="xrayImages" view="_base"/>
