@@ -6,6 +6,8 @@ import com.haulmont.cuba.gui.UiComponents;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.screen.FrameOwner;
 import com.haulmont.cuba.gui.screen.MessageBundle;
+import org.springframework.http.MediaType;
+import org.springframework.util.MimeType;
 
 public class XrayPreviewComponentFactory {
 
@@ -28,13 +30,10 @@ public class XrayPreviewComponentFactory {
         groupBoxLayout.setCaption(messageBundle.formatMessage("previewFile", file.getName()));
 
         if (isPdf(file)) {
-            Component xrayImageComponent = xrayPdfComponent(file);
-            groupBoxLayout.add(xrayImageComponent);
-
+            groupBoxLayout.add(xrayPdfComponent(file));
         }
         else if (isImage(file)){
-            Component xrayImageComponent = xrayImageComponent(file);
-            groupBoxLayout.add(xrayImageComponent);
+            groupBoxLayout.add(xrayImageComponent(file));
         }
 
         return groupBoxLayout;
@@ -57,7 +56,7 @@ public class XrayPreviewComponentFactory {
         browserFrame.setHeightFull();
         browserFrame.setSource(FileDescriptorResource.class)
                 .setFileDescriptor(imageFile)
-                .setMimeType("application/pdf");
+                .setMimeType(MediaType.APPLICATION_PDF_VALUE);
         return browserFrame;
     }
 
