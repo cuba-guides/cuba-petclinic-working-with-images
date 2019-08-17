@@ -1,6 +1,8 @@
 package com.haulmont.sample.petclinic.web.visit.visit;
 
+import com.haulmont.cuba.core.app.FileStorageService;
 import com.haulmont.cuba.core.entity.FileDescriptor;
+import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.core.global.FileStorageException;
 import com.haulmont.cuba.gui.Notifications;
 import com.haulmont.cuba.gui.ScreenBuilders;
@@ -13,12 +15,15 @@ import com.haulmont.cuba.gui.model.DataContext;
 import com.haulmont.cuba.gui.model.InstanceContainer;
 import com.haulmont.cuba.gui.screen.*;
 import com.haulmont.cuba.gui.upload.FileUploadingAPI;
+import com.haulmont.cuba.gui.util.OperationResult;
 import com.haulmont.sample.petclinic.entity.visit.Visit;
 import com.haulmont.sample.petclinic.web.visit.visit.xray_image_preview.XrayImagePreview;
 import com.haulmont.sample.petclinic.web.visit.visit.xray_image_preview.XrayPreviewComponentFactory;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 
@@ -70,6 +75,13 @@ public class VisitEdit extends StandardEditor<Visit> {
     @Inject
     protected ExportDisplay exportDisplay;
 
+    @Inject
+    private DataManager dataManager;
+
+    @Inject
+    private FileStorageService fileStorageService;
+
+    private List<FileDescriptor> newImageDescriptors = new ArrayList<>();
 
     @Subscribe
     protected void renderTreatingVetLayout(AfterShowEvent event) {
@@ -134,13 +146,15 @@ public class VisitEdit extends StandardEditor<Visit> {
 
     @Subscribe("upload")
     protected void onUploadFileUploadSucceed(FileUploadField.FileUploadSucceedEvent event) {
-        FileDescriptor imageFile = upload.getFileDescriptor();
+        FileDescriptor imageDescriptor = upload.getFileDescriptor();
 
         try {
-            fileUploadingAPI.putFileIntoStorage(upload.getFileId(), imageFile);
-            dataContext.merge(imageFile);
-            xRayImagesDc.getMutableItems().add(imageFile);
-            dataContext.commit();
+            fileUploadingAPI.putFileIntoStorage(upload.getFileId(), imageDescriptor);
+            // save file descriptor and remember it in case the user clicks "Cancel" and we need to remove it
+            FileDescriptor savedImageDescriptor = dataManager.commit(imageDescriptor);
+            newImageDescriptors.add(savedImageDescriptor);
+            // add file descriptor to data container to show in the table
+            xRayImagesDc.getMutableItems().add(savedImageDescriptor);
 
             notifications.create(Notifications.NotificationType.TRAY)
                     .withCaption(messageBundle.getMessage("xrayImageStoredSuccessfully"))
@@ -153,5 +167,21 @@ public class VisitEdit extends StandardEditor<Visit> {
 
             logger.error(failedMessage, e);
         }
+    }
+
+    @Override
+    public OperationResult closeWithDiscard() {
+        return super.closeWithDiscard().then(() -> {
+            for (FileDescriptor fileDescriptor : newImageDescriptors) {
+                try {
+                    fileStorageService.removeFile(fileDescriptor);
+                    if (xRayImagesDc.containsItem(fileDescriptor)) { // could be removed by user right after adding
+                        dataManager.remove(fileDescriptor);
+                    }
+                } catch (FileStorageException e) {
+                    logger.warn("Unable to remove file " + fileDescriptor);
+                }
+            }
+        });
     }
 }
